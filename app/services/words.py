@@ -16,6 +16,6 @@ def increment_occurrence(word: sqlite3.Row):
     return update_data(TABLE_NAME, {"total_occurrences": word["total_occurrences"] + 1}, ("id", word['id']))
 
 
-def insert_bad_word(word: str, occurrence=1):
+def insert_bad_word(word: str, project_id, occurrence=1):
     return insert_row(TABLE_NAME, {
-        "word": word, "total_occurrences": occurrence})
+        "word": word, "project_id": project_id, "total_occurrences": occurrence})

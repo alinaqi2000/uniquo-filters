@@ -1,13 +1,22 @@
 from services.utils import get_db_connection, read_bad_words
 from services.words import insert_bad_word, list_bad_words, count_bad_words
+from services.projects import insert_project, count_projects
 
 
-def load_words_into_database():
-    row = count_bad_words()
-    if row["total_words"] == 0:
+def seed_database():
+    count = count_projects()
+    project_id = 0
+    if count["total"] == 0:
+        project_id = insert_project("uniquo1", "Uniquo")
+        print("Sample project inserted into the database!")
+    else:
+        print("Sample project is already loaded!")
+
+    count = count_bad_words()
+    if count["total"] == 0:
         bad_words = read_bad_words("bad_words.txt")
         for word in bad_words:
-            insert_bad_word(word, 0)
+            insert_bad_word(word, project_id, 0)
         print("Bad words inserted into the database!")
     else:
         print("Bad words are already loaded!")
@@ -43,7 +52,9 @@ def check_and_create_database_schema():
     CREATE TABLE IF NOT EXISTS bad_phrases (
         id INTEGER PRIMARY KEY,
         phrase TEXT,
-        bad_words_occurrences INTEGER DEFAULT 1,
+        filtered_phrase TEXT,
+        total_occurrences INTEGER DEFAULT 1,
+        total_bad_words INTEGER DEFAULT 1,
         last_occurred_at DATE DEFAULT CURRENT_TIMESTAMP,
 
         project_id INTEGER DEFAULT NULL,

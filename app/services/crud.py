@@ -20,19 +20,19 @@ def select_rows(table: str,  params: tuple = ()):
     return execute_read_query(f"SELECT * FROM {table}", params)
 
 
-def select_row(table: str,  condition: tuple = ()):
-    return execute_read_query(f"SELECT * FROM {table} WHERE {condition[0]} = ?", (condition[1]), True)
+def select_row(table: str,  condition: tuple):
+    return execute_read_query(f"SELECT * FROM {table} WHERE {condition[0]} = ?", (condition[1],), True)
 
 
 def count_rows(table: str,  condition: tuple = ()):
-    if not condition:
-        return execute_read_query(f"SELECT count(*) as total_words FROM {table}", (), True)
+    if condition == ():
+        return execute_read_query(f"SELECT count(*) as total FROM {table}", (), True)
 
-    return execute_read_query(f"SELECT count(*) as total_words FROM {table} WHERE {condition[0]} = ?", (condition[1]), True)
+    return execute_read_query(f"SELECT count(*) as total FROM {table} WHERE {condition[0]} = ?", (condition[1],), True)
 
 
 def delete_row(table: str,  condition: tuple = ()):
-    return execute_query(f"DELETE FROM {table} WHERE {condition[0]} = ?", (condition[1]), True)
+    return execute_query(f"DELETE FROM {table} WHERE {condition[0]} = ?", (condition[1],), True)
 
 
 def execute_query(query, params=()):
