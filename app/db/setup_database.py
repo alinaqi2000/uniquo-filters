@@ -1,0 +1,71 @@
+from services.utils import get_db_connection, read_bad_words
+from services.words import insert_bad_word, list_bad_words, count_bad_words
+
+
+def load_words_into_database():
+    row = count_bad_words()
+    if row["total_words"] == 0:
+        bad_words = read_bad_words("bad_words.txt")
+        for word in bad_words:
+            insert_bad_word(word, 0)
+        print("Bad words inserted into the database!")
+    else:
+        print("Bad words are already loaded!")
+
+
+def check_and_create_database_schema():
+    conn = get_db_connection()
+
+    cursor = conn.cursor()
+
+    create_projects_table = '''
+    CREATE TABLE IF NOT EXISTS projects (
+        id INTEGER PRIMARY KEY,
+        code TEXT UNIQUE,
+        name TEXT,
+        created_at DATE DEFAULT CURRENT_TIMESTAMP
+    )
+    '''
+
+    create_bad_words_table = '''
+    CREATE TABLE IF NOT EXISTS bad_words (
+        id INTEGER PRIMARY KEY,
+        word TEXT UNIQUE,
+        total_occurrences INTEGER DEFAULT 1,
+        last_occurred_at DATE DEFAULT CURRENT_TIMESTAMP,
+        
+        project_id INTEGER DEFAULT NULL,
+        FOREIGN KEY (project_id) REFERENCES projects(id)
+    )
+    '''
+
+    create_phrases_table = '''
+    CREATE TABLE IF NOT EXISTS bad_phrases (
+        id INTEGER PRIMARY KEY,
+        phrase TEXT,
+        bad_words_occurrences INTEGER DEFAULT 1,
+        last_occurred_at DATE DEFAULT CURRENT_TIMESTAMP,
+
+        project_id INTEGER DEFAULT NULL,
+        FOREIGN KEY (project_id) REFERENCES projects(id)
+    )
+    '''
+
+    create_bad_word_occurrences_table = '''
+    CREATE TABLE IF NOT EXISTS bad_word_occurrences (
+        id INTEGER PRIMARY KEY,
+
+        phrase_id INTEGER,
+        word_id INTEGER,
+        FOREIGN KEY (phrase_id) REFERENCES phrases(id),
+        FOREIGN KEY (word_id) REFERENCES bad_words(id)
+    )
+    '''
+
+    cursor.execute(create_projects_table)
+    cursor.execute(create_bad_words_table)
+    cursor.execute(create_phrases_table)
+    cursor.execute(create_bad_word_occurrences_table)
+
+    conn.commit()
+    conn.close()
