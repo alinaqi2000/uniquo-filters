@@ -3,6 +3,9 @@ from filters.main import google_perspective_score, filter_bad_words
 from db.setup_database import check_and_create_database_schema, load_words_into_database
 from services.words import list_bad_words
 from services.utils import generate_public_key
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 

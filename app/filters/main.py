@@ -1,3 +1,4 @@
+import os
 import re
 from googleapiclient import discovery
 from services.words import list_bad_words, increment_occurrence
@@ -25,7 +26,7 @@ def filter_bad_words(text):
 
 def google_perspective_score(text):
 
-    API_KEY = 'AIzaSyA-aQ7tbd8LO1ZrOxd6XaYUUZrskmHo6MI'
+    API_KEY =  os.environ.get('GOOGLE_API_KEY')
 
     client = discovery.build(
         "commentanalyzer",
