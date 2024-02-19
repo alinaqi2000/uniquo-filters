@@ -1,12 +1,13 @@
 from flask import Flask, request, send_file
-from filters.main import google_perspective_score, filter_bad_words
+from filters.main import google_perspective_score
 from db.setup_database import check_and_create_database_schema, seed_database
-from services.words import list_bad_words
-from services.phrases import list_bad_phrases
 from services.utils import generate_public_key
 from services.requests import ok_response
 from services.projects import project_exists, get_single_project
 from dotenv import load_dotenv
+from routes.bad_words import bad_words
+from routes.bad_phrases import bad_phrases
+from routes.filter_bad_text import filter_bad_text
 
 # load environment variables from .env
 load_dotenv()
@@ -16,6 +17,10 @@ check_and_create_database_schema()
 seed_database()
 
 app = Flask(__name__)
+
+app.register_blueprint(bad_words)
+app.register_blueprint(bad_phrases)
+app.register_blueprint(filter_bad_text)
 
 
 @app.before_request
@@ -44,18 +49,6 @@ def encryption_key():
     return send_file(generate_public_key(), as_attachment=True)
 
 
-@app.route('/bad-words')
-def bad_words_list():
-    rows = list_bad_words()
-    return ok_response({"total": len(rows), 'words': [dict(row) for row in rows]})
-
-
-@app.route('/bad-phrases')
-def bad_phrases_list():
-    rows = list_bad_phrases()
-    return ok_response({"total": len(rows), 'phrases': [dict(row) for row in rows]})
-
-
 @app.route('/google-perspective', methods=["POST"])
 def google_perspective():
     request_body = request.get_json()
@@ -63,15 +56,6 @@ def google_perspective():
         return ok_response({"error": "Please add valid data"})
 
     return ok_response({"success": google_perspective_score(request_body.get('text'))})
-
-
-@app.route('/filter-bad-words', methods=["POST"])
-def bad_words():
-    request_body = request.get_json()
-    if (request_body.get('text') == None or request_body.get('text') == ""):
-        return ok_response({"error": "Please add valid data"})
-    phrase, total_words = filter_bad_words(request_body.get('text'))
-    return ok_response({"processed_text": phrase, "bad_words": total_words})
 
 
 if __name__ == '__main__':
