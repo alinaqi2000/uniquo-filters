@@ -3,3 +3,4 @@ db-sqlite3
 pycryptodome
 google-api-python-client
 python-dotenv
+waitress

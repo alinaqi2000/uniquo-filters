@@ -11,6 +11,10 @@ PUBLIC_ENCRYPTION_KEY = "uniquo_public.pem"
 PRIVATE_ENCRYPTION_KEY = "uniquo_private.pem"
 
 
+def env(key):  # Function get environment variable
+    return os.environ.get(key)
+
+
 def get_db_connection():  # Function to establish database connection
     """Establishes a connection to the database."""
     conn = sqlite3.connect(DB_PATH)

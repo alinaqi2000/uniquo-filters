@@ -1,12 +1,13 @@
-import os
 import re
 from flask import current_app
 from googleapiclient import discovery
 from services.words import list_bad_words, increment_occurrence
 from services.phrases import get_single_phrase, insert_bad_phrase, get_phrase_languages, insert_bad_phrase_languages, increment_occurrence as phrase_increment_occurrence
-
+from services.utils import env
 
 # Function to get detected languages and their codes for a given phrase
+
+
 def get_phrase_languages_and_codes(phrase_id):
     """Returns detected languages and their codes for a given phrase ID."""
     detected_languages_ids = set()
@@ -94,7 +95,7 @@ def filter_bad_words(text):  # Function to filter bad words from text
 # Function to get Google Perspective API score for text
 def google_perspective_score(text):
     """Gets Google Perspective API score for the given text."""
-    API_KEY = os.environ.get('GOOGLE_API_KEY')
+    API_KEY = env('GOOGLE_API_KEY')
 
     client = discovery.build(
         "commentanalyzer",

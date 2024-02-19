@@ -1,7 +1,7 @@
 from flask import Flask, request, send_file
 from filters.main import google_perspective_score
 from db.setup_database import check_and_create_database_schema, seed_database
-from services.utils import generate_public_key
+from services.utils import generate_public_key, env
 from services.requests import ok_response
 from services.projects import project_exists, get_single_project
 from dotenv import load_dotenv
@@ -59,4 +59,9 @@ def google_perspective():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    match env("APP_MODE"):
+        case "production":
+            from waitress import serve
+            serve(app, host="0.0.0.0", port=5000)
+        case _:
+            app.run(host='0.0.0.0', port=5000, debug=True)
