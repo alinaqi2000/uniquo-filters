@@ -1,5 +1,6 @@
 from flask import Flask, request, send_file
 from filters.main import google_perspective_score
+from db.config import init_db, db
 from db.setup_database import check_and_create_database_schema, seed_database
 from services.utils import generate_public_key, env
 from services.requests import ok_response
@@ -9,14 +10,19 @@ from routes.bad_words import bad_words
 from routes.bad_phrases import bad_phrases
 from routes.filter_bad_text import filter_bad_text
 
+
+app = Flask(__name__)
+
 # load environment variables from .env
 load_dotenv()
 
 # database setup
-check_and_create_database_schema()
+init_db(app)
+
+
+# check_and_create_database_schema()
 seed_database()
 
-app = Flask(__name__)
 
 app.register_blueprint(bad_words)
 app.register_blueprint(bad_phrases)
@@ -34,9 +40,9 @@ def check_token():
 
         if not app.config['project_code'] or not project_exists(app.config['project_code']):
             return ok_response({"error": "Please add a valid project code"}, 401)
-        project = get_single_project(("code", app.config['project_code']))
-        if project != None:
-            app.config['project_id'] = project["id"]
+        project = get_single_project(app.config['project_code'])
+        if project is not None:
+            app.config['project_id'] = project.id
 
 
 @app.route('/')
@@ -59,9 +65,11 @@ def google_perspective():
 
 
 if __name__ == '__main__':
-    match env("APP_MODE"):
-        case "production":
-            from waitress import serve
-            serve(app, host="0.0.0.0", port=5000)
-        case _:
-            app.run(host='0.0.0.0', port=5000, debug=True)
+    # # with app.app_context():
+    # #     db.create_all()
+    # match env("APP_MODE"):
+    #     case "production":
+    #         from waitress import serve
+    #         serve(app, host="0.0.0.0", port=5000)
+    #     case _:
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -1,32 +1,32 @@
 from services.utils import get_db_connection, read_bad_words
-from services.words import insert_bad_word, list_bad_words, count_bad_words
+from services.words import insert_bad_word, count_bad_words
 from services.projects import insert_project, count_projects
 from services.languages import insert_language, language_exists, get_single_language
+from db.models import Language
+from db.config import db
 
 
 def seed_database():
     count = count_projects()
     project_id = 0
-    if count["total"] == 0:
-        project_id = insert_project("uniquo1", "Uniquo")
+    if count == 0:
+        project = insert_project("uniquo1", "Uniquo")
         print("Sample project inserted into the database!")
     else:
         print("Sample project is already loaded!")
 
     count = count_bad_words()
-    if count["total"] == 0:
+    if count == 0:
         languages, bad_words_data = read_bad_words()
-
         for language_code in bad_words_data:
             if not language_exists(language_code):
-                language_id = insert_language(
+                language = insert_language(
                     language_code, languages[language_code].rstrip())
             else:
-                language = get_single_language(("code", language_code))
-                language_id = language['id']
+                language = get_single_language(language_code)
 
             for word in bad_words_data[language_code]:
-                insert_bad_word(word, project_id, language_id, 0)
+                insert_bad_word(word, project.id, language.id, 0)
 
         print("Bad words inserted into the database!")
     else:

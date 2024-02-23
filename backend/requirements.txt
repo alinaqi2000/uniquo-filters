@@ -1,6 +1,10 @@
 flask
+mysqlclient
+flask-sqlalchemy
+sqlalchemy
 db-sqlite3
 pycryptodome
 google-api-python-client
 python-dotenv
-waitress
+wheel
+uwsgi

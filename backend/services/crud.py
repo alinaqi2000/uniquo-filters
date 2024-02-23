@@ -1,12 +1,10 @@
 import sqlite3
-from .utils import get_db_connection
+from db.config import db
 
 
-def insert_row(table: str, data: dict):
-    columns = ', '.join(data.keys())
-    placeholders = ', '.join(['?' for _ in range(len(data))])
-    query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
-    return execute_query(query, tuple(data.values()))
+def insert_row(model):
+    db.session.add(model)
+    db.session.commit()
 
 
 def update_data(table: str, set_values: dict, condition: tuple):
